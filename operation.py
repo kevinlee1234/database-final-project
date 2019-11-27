@@ -5,8 +5,9 @@ from itertools import groupby
 from operator import itemgetter
 
 class Table:
-    def __init__(self, table = []):
+    def __init__(self, table = [], index = None):
         self.table = table
+        self.index = index
 
     @classmethod
     def inputfromfile(cls,file):
