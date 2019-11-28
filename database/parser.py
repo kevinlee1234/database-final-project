@@ -33,33 +33,6 @@ def construct_condition(condition, tableName = None, table = None):
         raise Exception('Missing input: need tableName for `join` or `table` for `search`')
     return res
 
-def parser(query):
-    ''' This function is used to parser the query for the select function
-        Input: A query in string format
-        Outputs: Table name, function name, table on which we operate and conditions
-    '''
-    query = query.split('//')[0]
-    split = query.split(':=')
-    
-    ### get the name of generated table
-    generate_table_name = split[0].strip()
-    
-    ### get the name of the table on which we will operate
-    q1 = split[1].strip()
-    fun_name = q1.split('(')[0]
-    operation_table_name = q1.split('(')[1].split(',')[0]
-    
-    ### get conditions that we will use to operate the table
-    conditions = []
-    if len(q1.split('(')) == 2:
-        for i in range(1,len(q1.split('(')[1].split(','))):
-            conditions.append(q1.split('(')[1].split(',')[i].split(')')[0].strip())
-    
-    if len(q1.split('(')) > 2:
-        for i in range(2,len(q1.split('('))):
-            conditions.append(q1.split('(')[i].split(')')[0])
-            
-    return generate_table_name, fun_name, operation_table_name, conditions
 
 
 if __name__ == '__main__':
