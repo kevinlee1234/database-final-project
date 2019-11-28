@@ -1,14 +1,11 @@
-import numpy as np
 import re
 import csv
 from itertools import groupby
 from operator import itemgetter
 from database.parser import input_parser, construct_condition
 
-
-
 class Table:
-    def __init__(self, table = [], index = None):
+    def __init__(self, table = [],index = None):
         self.table = table
         self.index = index
 
@@ -77,7 +74,7 @@ class Table:
         return cls(output)
                 
     @classmethod
-    def projection(cls, table, table_name,parameter):
+    def projection(cls, table, table_name, parameter):
         ''' This function select columns from data table
             Inputs: table      : Table
                     table_name : str, the name of table
@@ -92,3 +89,17 @@ class Table:
                 new_row[new_column] = row[column]
             output.append(new_row)
         return cls(output)
+    
+    @classmethod
+    def avg(cls, table, column):
+        ''' This function calculates the average of a given column
+            Inputs: table  : table
+                    column : str, we compute the average of this column
+            Output: table with single column and single row, the column name will be avg(column)
+        '''
+        sum = 0
+        for row in table.table:
+            sum = sum + row[column]
+        output_row = {}
+        output_row['avg({})'.format(column)] = sum/len(table.table)
+        return cls([output_row])

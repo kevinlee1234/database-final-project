@@ -147,5 +147,34 @@ class TestTable(unittest.TestCase):
             self.assertEqual(row['R_pricerange'], row['S_P'])
 
     def test_project_with_sales_1_and_column_saleid_itemid(self):
+        '''Test projection with two columns'''
         R = Table.inputfromfile('sales1')
-        self.assertIsNotNone(R.table)
+        R1 = Table.projection(R,'R',['saleid', 'itemid'])
+        self.assertIsNotNone(R1.table)
+        for row in R1.table:
+            self.assertIsNotNone(row['R_saleid'])
+            self.assertIsNotNone(row['R_itemid'])
+            self.assertRaises(KeyError, lambda: row['R_customerid']) 
+            self.assertRaises(KeyError, lambda: row['R_storeid']) 
+            self.assertRaises(KeyError, lambda: row['R_time']) 
+            self.assertRaises(KeyError, lambda: row['R_qty']) 
+            self.assertRaises(KeyError, lambda: row['R_pricerange']) 
+
+    def test_avg_with_sales_1_and_column_saleid(self):
+        '''Test avg with: avg(saleid)'''
+        R = Table.inputfromfile('sales1')
+        R1 = Table.avg(R, 'saleid')
+        self.assertIsNotNone(R1.table)
+        sum = 0
+        for row in R.table:
+            sum = sum + row['saleid']
+        avg = sum/len(R.table)
+        for row in R1.table:
+            self.assertIsNotNone(row['avg(saleid)'])
+            self.assertEqual(row['avg(saleid)'], avg)
+
+    # def test_avggroup_with_sales_1_and_column_saleid_groupby_pricerange(self):
+    #     '''Test avggroup with: avgroup(R, saleid, pricerange)'''
+
+
+            
