@@ -108,7 +108,7 @@ class Table:
     def sumgroup(cls,table,conditions):
         ''' This function calculates the sum of a given column for different groups
             Inputs: table      : Table
-                    paramter   : list, contains the columns name we need to project
+                    conditions   : list, contains the columns name we need to project
                     Output: table with sum of a given column for different groups
         '''
         col = conditions[0]
@@ -141,7 +141,7 @@ class Table:
         ''' This function calculates the average of a given column for different groups
             Inputs: table      : Table
                     table_name : str, the name of table
-                    paramter   : list, contains the columns name we need to project
+                    conditions   : list, contains the columns name we need to project
             Output: table with average of a given column for different groups
         '''
         col = conditions[0]
@@ -166,5 +166,59 @@ class Table:
         data_under_conditions = []
         for i in range(len(sum_group)):
             data_under_conditions.append({keys[i]: sum_group[i]})
-        
+            
         return cls(data_under_conditions)
+
+    @classmethod
+    def movavg(cls,table,conditions):
+        ''' This function calculates the moving average of a given column
+            Inputs: table      : Table
+                    conditions   : list, contains the columns name we need to project
+            Output: table with average of a given column for different groups
+        '''
+        col = conditions[1]
+        step = int(conditions[2])
+        Df = table.table
+        moving_avg = []
+        for i in range(1,(len(Df)+1)):
+            if i <= step:
+                sum1 = 0
+                data = Df[0:i]
+                for j in range(i):
+                    sum1 = sum1 + data[j][col]
+                moving_avg.append(sum1 / i)
+            else:
+                sum2 = 0
+                data = Df[i-step: i]
+                for j in range(step):
+                    sum2 = sum2 + data[j][col]
+                moving_avg.append(sum2 / step)
+
+        return cls(moving_avg)
+
+    @classmethod
+    def movsum(cls,table,conditions):
+        ''' This function calculates the moving sum of a given column
+            Inputs: table      : Table
+                    conditions  : list, contains the columns name we need to project
+            Output: table with average of a given column for different groups
+        '''
+        col = conditions[1]
+        step = int(conditions[2])
+        Df = table.table
+        moving_sum = []
+        for i in range(1,(len(Df)+1)):
+            if i <= step:
+                sum1 = 0
+                data = Df[0:i]
+                for j in range(i):
+                    sum1 = sum1 + data[j][col]
+                moving_sum.append(sum1)
+            else:
+                sum2 = 0
+                data = Df[i-step: i]
+                for j in range(step):
+                    sum2 = sum2 + data[j][col]
+                moving_sum.append(sum2)
+
+        return cls(moving_sum)
