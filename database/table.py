@@ -21,8 +21,8 @@ class Table:
             reader = csv.reader(f)
             columns = next(reader)[0].split('|')
             data = [r[0].strip().split('|') for r in reader]
-        
-        for i in range(len(data)): 
+
+        for i in range(len(data)):
             res = {}
             for k in range(len(data[0])):
                 try:
@@ -72,14 +72,14 @@ class Table:
                         new_row[column] = B_row[key]
                     output.append(new_row)
         return cls(output)
-                
+
     @classmethod
     def projection(cls, table, table_name, parameter):
         ''' This function select columns from data table
             Inputs: table      : Table
                     table_name : str, the name of table
                     paramter   : list, contains the columns name we need to project
-            Output: table with these columns 
+            Output: table with these columns
         '''
         output = []
         for row in table.table:
@@ -89,7 +89,7 @@ class Table:
                 new_row[new_column] = row[column]
             output.append(new_row)
         return cls(output)
-    
+
     @classmethod
     def avg(cls, table, column):
         ''' This function calculates the average of a given column
@@ -103,3 +103,68 @@ class Table:
         output_row = {}
         output_row['avg({})'.format(column)] = sum/len(table.table)
         return cls([output_row])
+
+    @classmethod
+    def sumgroup(cls,table,conditions):
+        ''' This function calculates the sum of a given column for different groups
+            Inputs: table      : Table
+                    paramter   : list, contains the columns name we need to project
+                    Output: table with sum of a given column for different groups
+        '''
+        col = conditions[0]
+        groups = tuple(conditions[1:])
+        group_func = itemgetter(*groups)
+        sorted_table = sorted(table.table, key = group_func)
+
+        grouped_data =  [(key,list(group)) for key, group in groupby(sorted_table, group_func)]
+        keys = []
+        values = []
+        for i in range(len(grouped_data)):
+            keys.append(grouped_data[i][0])
+            values.append(grouped_data[i][1])
+
+        sum_group = []
+        for i in values:
+            sum_ = 0
+            for j in i:
+                sum_ += j[col]
+            sum_group.append(sum_)
+
+        data_under_conditions = []
+        for i in range(len(sum_group)):
+            data_under_conditions.append({keys[i]: sum_group[i]})
+
+        return cls(data_under_conditions)
+
+    @classmethod
+    def avggroup(cls,table,conditions):
+        ''' This function calculates the average of a given column for different groups
+            Inputs: table      : Table
+                    table_name : str, the name of table
+                    paramter   : list, contains the columns name we need to project
+            Output: table with average of a given column for different groups
+        '''
+        col = conditions[0]
+        groups = tuple(conditions[1:])
+        group_func = itemgetter(*groups)
+        sorted_table = sorted(table.table, key = group_func)
+
+        grouped_data =  [(key,list(group)) for key, group in groupby(sorted_table, group_func)]
+        keys = []
+        values = []
+        for i in range(len(grouped_data)):
+            keys.append(grouped_data[i][0])
+            values.append(grouped_data[i][1])
+
+        sum_group = []
+        for i in values:
+            sum_ = 0
+            for j in i:
+                sum_ += j[col]
+            sum_group.append(sum_ / len(i))
+
+        data_under_conditions = []
+        for i in range(len(sum_group)):
+            data_under_conditions.append({keys[i]: sum_group[i]})
+        
+        return cls(data_under_conditions)
