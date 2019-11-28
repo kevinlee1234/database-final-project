@@ -1,32 +1,9 @@
-import re
 import unittest
+from database.parser import input_parser, construct_condition
 
-def input_parser(input):
-    input = input.replace(" ","")
-    input = input.split('//')[0] #remove comment
-    matched = re.findall("(.+):=([^()]+)\((.+)\)",input)
-    if matched:
-        output_table = matched[0][0]
-        function_name = matched[0][1]
-        parameter = matched[0][2].split(',')
-        return output_table, function_name, parameter
-    else:
-        raise Exception('Fail to parse. An input should be "R := operation(parameter1, parameter2, ...) but get {}"'.format(input))
-
-def condition_parser(condition):
-    condition_list = []
-    condition = condition.replace(" ", "")
-    matched = re.findall("\((.+)\)(and|or)\((.+)\)",condition)
-    single_condition = re.compile("([^><=!]+)([><=]|[><!][=])([^><=!]+)")
-    if(matched):
-        condition_list.append(single_condition.findall(matched[0][0])[0])
-        condition_list.append(single_condition.findall(matched[0][2])[0])
-        return condition_list, matched[0][1]
-    else:
-        return single_condition.findall(condition)[0],''
-        
 class TestParser(unittest.TestCase):
     def test_input_parser(self):
+        '''Test the input parser'''
         output_table, function_name, parameter = input_parser("R := inputfromfile(sales1) ")
         self.assertEqual('R', output_table)
         self.assertEqual('inputfromfile', function_name)
@@ -53,18 +30,38 @@ class TestParser(unittest.TestCase):
         self.assertEqual(['R1', 'qty', 'time', 'pricerange'],parameter) 
 
     def test_input_parser_with_comment(self):
+        '''Test the input parser with comment'''
         output_table, function_name, parameter = input_parser("R := select(R, (time > 50) or (qty < 30)) //// select sum(qty), time, /")
         self.assertEqual('R', output_table)
         self.assertEqual('select', function_name)
         self.assertEqual(['R', '(time>50)or(qty<30)'],parameter) 
 
-    def test_condition_parser(self):
-        condition, operator = condition_parser('(R.C>5) and (S.B < 10)')
-        self.assertEqual([('R.C','>','5'),('S.B','<','10')],condition)
-        self.assertEqual(operator,'and')
-        condition, operator = condition_parser('R.C>5')
-        self.assertEqual(('R.C','>','5'),condition)
-        self.assertEqual(operator,'')
+    def test_construct_condition(self):
+        '''Test the construct condtion'''
+        table = {'R1':'A_row', 'S':'B_row'}
+        test_case_join = '(R1.C2 >= S.C) and (S.B < 10)'
+        test_case_search = '(saleid >= 100) and (pricerange < 10)'
+        test_case_arithm = '(10*R1.C2 >= S.C) and (S.B/5 < 10)'
+        expect_arithm = '(10*A_row["C2"] >= B_row["C"]) and (B_row["B"]/5 < 10)'
+        output_join = construct_condition(test_case_join, tableName = table)
+        output_arithm = construct_condition(test_case_arithm, tableName = table)
+        output_search = construct_condition(test_case_search, table = 'R')
+        self.assertEqual('(A_row["C2"] >= B_row["C"]) and (B_row["B"] < 10)',output_join)
+        self.assertEqual('(R["saleid"] >= 100) and (R["pricerange"] < 10)', output_search)
+        self.assertEqual(expect_arithm, output_arithm)
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_construct_condition_with_more_than_two_condtion(self):
+        '''Test the construct condtion with more than two condition'''
+        table = {'R1':'A_row', 'S':'B_row'}
+        test_case = '(R1.C2 >= S.C) and (S.B < 10) and (R1.salesid <= 5)'
+        expected = '(A_row["C2"] >= B_row["C"]) and (B_row["B"] < 10) and (A_row["salesid"] <= 5)'
+        output = construct_condition(test_case, tableName= table)
+        self.assertEqual(expected, output)
+    
+    def test_construct_condition_with_single_equal_sign(self):
+        '''Test the construct condtion with single equal sign'''
+        table = {'R1':'A_row', 'S':'B_row'}
+        test_case = '(R1.C2 >= S.C) and (S.B < 10) and (R1.salesid = 5)'
+        expected = '(A_row["C2"] >= B_row["C"]) and (B_row["B"] < 10) and (A_row["salesid"]== 5)'
+        output = construct_condition(test_case, tableName= table)
+        self.assertEqual(expected, output)
