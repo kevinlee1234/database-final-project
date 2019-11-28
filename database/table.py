@@ -108,7 +108,8 @@ class Table:
     def sumgroup(cls,table,conditions):
         ''' This function calculates the sum of a given column for different groups
             Inputs: table      : Table
-                    conditions   : list, contains the columns name we need to project
+                    conditions   : list, contains the columns name we need to calculate sum and 
+                    the columns we need to group
                     Output: table with sum of a given column for different groups
         '''
         col = conditions[0]
@@ -141,7 +142,8 @@ class Table:
         ''' This function calculates the average of a given column for different groups
             Inputs: table      : Table
                     table_name : str, the name of table
-                    conditions   : list, contains the columns name we need to project
+                    conditions   : list, contains the columns name we need to calculate average and 
+                    the columns we need to group
             Output: table with average of a given column for different groups
         '''
         col = conditions[0]
@@ -173,7 +175,8 @@ class Table:
     def movavg(cls,table,conditions):
         ''' This function calculates the moving average of a given column
             Inputs: table      : Table
-                    conditions   : list, contains the columns name we need to project
+                    conditions   : list, contains the table name on which we will operate, the 
+                    columns on which we will calculate moving average and the moving step
             Output: table with moving average of a given column
         '''
         col = conditions[1]
@@ -200,7 +203,8 @@ class Table:
     def movsum(cls,table,conditions):
         ''' This function calculates the moving sum of a given column
             Inputs: table      : Table
-                    conditions  : list, contains the columns name we need to project
+                    conditions  : list, contains the table name on which we will operate, the 
+                    columns on which we will calculate moving sum and the moving step
             Output: table with moving sum of a given column
         '''
         col = conditions[1]
