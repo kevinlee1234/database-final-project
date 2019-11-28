@@ -174,7 +174,7 @@ class Table:
         ''' This function calculates the moving average of a given column
             Inputs: table      : Table
                     conditions   : list, contains the columns name we need to project
-            Output: table with average of a given column for different groups
+            Output: table with moving average of a given column
         '''
         col = conditions[1]
         step = int(conditions[2])
@@ -201,7 +201,7 @@ class Table:
         ''' This function calculates the moving sum of a given column
             Inputs: table      : Table
                     conditions  : list, contains the columns name we need to project
-            Output: table with average of a given column for different groups
+            Output: table with moving sum of a given column
         '''
         col = conditions[1]
         step = int(conditions[2])
