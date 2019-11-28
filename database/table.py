@@ -58,7 +58,7 @@ class Table:
            Output: Table
         '''
         table = {A_name:'A_row', B_name:'B_row'}
-        row_condition = construct_condition(condition, tableName = table)
+        row_condition, columns = construct_condition(condition, tableName = table)
         output = []
         for A_row in A.table:
             for B_row in B.table:
@@ -85,8 +85,7 @@ class Table:
         for row in table.table:
             new_row = {}
             for column in parameter:
-                new_column = '{}_{}'.format(table_name, column)
-                new_row[new_column] = row[column]
+                new_row[column] = row[column]
             output.append(new_row)
         return cls(output)
 
@@ -226,3 +225,24 @@ class Table:
                 moving_sum.append(sum2)
 
         return cls(moving_sum)
+
+    @classmethod
+    def sort(cls, table, columns):
+        '''This function sort the table based on given columns
+           Inputs: table   : Table
+                   columns : list, The key columns that used to be sorted, can be one or more.
+           output: none
+        '''
+        table.table = sorted(table.table,key = lambda k: [k[column] for column in columns])
+        return 
+
+    @classmethod
+    def concat(cls, table_A, table_B):
+        '''This function concate two tables to one big table
+           Inputs: table_A  : Table, this one will be the first part of the new table
+                   table_B  : Table, it has the same schema as A
+           output: A new table with a contated table from A and B
+        '''
+        output = table_A.table + table_B.table
+        return cls(output)
+                   
